@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Financiamento Imobiliário SAC</title>
+    <link rel="stylesheet" href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+    <div class="container my-4">
+        <h1 class="text-center mb-4">Calculadora de Financiamento Imobiliário - Sistema SAC</h1>
+        
+        <div class="row">
+            <div class="col-lg-4">
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5>Dados do Financiamento</h5>
+                    </div>
+                    <div class="card-body">
+                        <form id="loanForm">
+                            <div class="mb-3">
+                                <label for="loanAmount" class="form-label">Valor do Financiamento (R$)</label>
+                                <input type="text" class="form-control" id="loanAmount" name="loan_amount" placeholder="Ex: 500.000,00" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="loanTermMonths" class="form-label">Prazo (meses)</label>
+                                <input type="number" class="form-control" id="loanTermMonths" name="loan_term_months" min="1" max="480" placeholder="Ex: 360" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="annualInterestRate" class="form-label">Taxa de Juros Efetiva Anual (%)</label>
+                                <input type="text" class="form-control" id="annualInterestRate" name="annual_interest_rate" placeholder="Ex: 10,75" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="insuranceRate" class="form-label">Taxa de Seguro Mensal (R$)</label>
+                                <input type="text" class="form-control" id="insuranceRate" name="insurance_rate" placeholder="Ex: 19,00" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="operationalFee" class="form-label">Taxa Operacional Mensal (R$)</label>
+                                <input type="text" class="form-control" id="operationalFee" name="operational_fee" placeholder="Ex: 25,00" required>
+                            </div>
+                            
+                            <div class="card mb-3">
+                                <div class="card-header d-flex justify-content-between align-items-center">
+                                    <h6 class="mb-0">Amortizações Extras (opcional)</h6>
+                                    <button type="button" class="btn btn-sm btn-success" id="addExtraAmortization">
+                                        <i class="bi bi-plus-circle"></i> Adicionar
+                                    </button>
+                                </div>
+                                <div class="card-body">
+                                    <div id="extraAmortizationsContainer">
+                                        <!-- As amortizações extras serão adicionadas aqui pelo JavaScript -->
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            
+                            
+                            <div class="text-center">
+                                <button type="submit" class="btn btn-primary">Calcular</button>
+                                <button type="reset" class="btn btn-secondary ms-2">Limpar</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-8">
+                <div id="resultsSection" class="d-none">
+                    <div class="card mb-4">
+                        <div class="card-header d-flex justify-content-between">
+                            <h5>Resumo do Financiamento</h5>
+                            <div>
+                                <button id="printResults" class="btn btn-sm btn-outline-secondary">
+                                    <i class="bi bi-printer"></i> Imprimir
+                                </button>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <p><strong>Valor Financiado:</strong> <span id="summaryLoanAmount"></span></p>
+                                    <p><strong>Prazo Original:</strong> <span id="summaryLoanTerm"></span> meses</p>
+                                    <p><strong>Prazo Real:</strong> <span id="summaryActualTerm"></span> meses</p>
+                                </div>
+                                <div class="col-md-6">
+                                    <p><strong>Total de Juros:</strong> <span id="summaryTotalInterest"></span></p>
+                                    <p><strong>Total de Seguros:</strong> <span id="summaryTotalInsurance"></span></p>
+                                    <p><strong>Total de Taxa Operacional:</strong> <span id="summaryTotalFee"></span></p>
+                                </div>
+                            </div>
+                            <div class="row mt-2">
+                                <div class="col-12">
+                                    <div class="alert alert-info">
+                                        <p class="mb-0"><strong>Valor Total Pago:</strong> <span id="summaryTotalPayment"></span></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5>Evolução do Financiamento</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <select id="chartPeriodSelect" class="form-select form-select-sm w-auto">
+                                    <option value="all">Todo o período</option>
+                                    <option value="12">Primeiros 12 meses</option>
+                                    <option value="24">Primeiros 24 meses</option>
+                                    <option value="60">Primeiros 60 meses</option>
+                                </select>
+                            </div>
+                            <div class="chart-container" style="position: relative; height:350px;">
+                                <canvas id="loanChart"></canvas>
+                            </div>
+                            <div class="alert alert-info mt-3 small">
+                                <i class="bi bi-info-circle-fill me-2"></i>
+                                <strong>Informação:</strong> O gráfico mostra a prestação regular (sem amortizações extras), composta por: juros + amortização principal + seguros + taxas. As amortizações extras são aplicadas adicionalmente às prestações regulares.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <h5>Tabela de Amortização</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-striped table-hover" id="paymentTable">
+                                    <thead>
+                                        <tr>
+                                            <th>Mês</th>
+                                            <th>Prestação (R$)</th>
+                                            <th>Juros (R$)</th>
+                                            <th>Amortização (R$)</th>
+                                            <th>Seguro (R$)</th>
+                                            <th>Taxa (R$)</th>
+                                            <th>Saldo Devedor (R$)</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="paymentTableBody">
+                                        <!-- Data will be populated by JavaScript -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="loadingIndicator" class="text-center my-5 d-none">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Calculando...</span>
+                    </div>
+                    <p class="mt-2">Calculando, por favor aguarde...</p>
+                </div>
+                
+                <div id="initialMessage" class="text-center my-5">
+                    <div class="alert alert-secondary">
+                        <i class="bi bi-calculator fs-1 d-block mb-3"></i>
+                        <h4>Preencha os dados ao lado para calcular seu financiamento</h4>
+                        <p class="mb-0">Você verá o detalhamento de todas as parcelas aqui.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="{{ url_for('static', filename='js/calculator.js') }}"></script>
+</body>
+</html>

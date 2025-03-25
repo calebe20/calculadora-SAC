@@ -1,0 +1,96 @@
+/* Custom styles for the loan calculator */
+
+/* Add spacing for the form groups */
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+/* Style for highlighting rows with extra amortization */
+tr td[data-bs-toggle="tooltip"] {
+    background-color: rgba(var(--bs-info-rgb), 0.1);
+    cursor: help;
+}
+
+/* Print styles */
+@media print {
+    body {
+        background-color: white !important;
+        color: black !important;
+    }
+    
+    .card {
+        border: 1px solid #ddd !important;
+    }
+    
+    .card-header {
+        background-color: #f8f9fa !important;
+        color: black !important;
+    }
+    
+    .table {
+        color: black !important;
+    }
+    
+    .table-striped tbody tr:nth-of-type(odd) {
+        background-color: rgba(0, 0, 0, 0.05) !important;
+    }
+    
+    .btn, nav, .no-print {
+        display: none !important;
+    }
+    
+    .container {
+        max-width: 100% !important;
+        width: 100% !important;
+    }
+    
+    .alert-info {
+        border: 1px solid #bee5eb !important;
+        background-color: #d1ecf1 !important;
+        color: #0c5460 !important;
+    }
+}
+
+/* Ensure currency inputs are right-aligned */
+input[type="text"][id$="Amount"],
+input[type="text"][id="annualInterestRate"],
+input[type="text"][id="insuranceRate"],
+input[type="text"][id="operationalFee"],
+input[type="text"][id="growingRate"] {
+    text-align: right;
+}
+
+/* Add some padding to the table cells */
+#paymentTable td,
+#paymentTable th {
+    padding: 0.75rem;
+    vertical-align: middle;
+}
+
+/* Make the input labels bold */
+.form-label {
+    font-weight: 500;
+}
+
+/* Add an asterisk note at the bottom of the payment table */
+#paymentTable::after {
+    content: "* Valores com amortização extra aplicada";
+    display: block;
+    padding: 0.5rem;
+    font-size: 0.875rem;
+    font-style: italic;
+    color: var(--bs-info);
+}
+
+/* Responsive adjustments for smaller screens */
+@media (max-width: 992px) {
+    .card {
+        margin-bottom: 1.5rem;
+    }
+}
+
+@media (max-width: 768px) {
+    #paymentTable {
+        font-size: 0.875rem;
+    }
+}
